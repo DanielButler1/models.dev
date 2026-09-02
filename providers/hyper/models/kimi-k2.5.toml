@@ -5,9 +5,9 @@ attachment = false
 reasoning_options = []
 
 [cost]
-input = 0.5444
-output = 2.855
-cache_write = 0.2722
+input = 0.5284
+output = 2.785
+cache_write = 0.2642
 
 [limit]
 output = 26_214
