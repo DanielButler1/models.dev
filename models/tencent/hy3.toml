@@ -1,4 +1,4 @@
-# Tencent documents a 192K maximum input for Hy3.
+# Tencent documents a 192K maximum input and 128K maximum output for Hy3.
 # https://cloud.tencent.com/document/product/1823/130051
 name = "Hy3"
 description = "Tencent Hy reasoning model for coding, instruction following, and agent tasks"
@@ -14,7 +14,7 @@ open_weights = true
 [limit]
 context = 256_000
 input = 192_000
-output = 64_000
+output = 128_000
 
 [modalities]
 input = ["text"]
