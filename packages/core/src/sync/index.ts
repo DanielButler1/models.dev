@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { AuthoredModel, AuthoredModelShape, ModelMetadata } from "../schema.js";
 import { openMissingModelIssues } from "./missing-issues.js";
+import { MissingReasoningOptionsError } from "./missing-reasoning-options.js";
 import { ambient } from "./providers/ambient.js";
 import { anthropic } from "./providers/anthropic.js";
 import { baseten } from "./providers/baseten.js";
@@ -251,16 +252,25 @@ export async function syncProvider<SourceModel>(
   const caseNormalizedDesiredPaths = new Map<string, string>();
   const desiredMetadata = new Map<string, { model: z.infer<typeof ModelMetadata>; content: string }>();
   const skippedRemote: string[] = [];
+  const missingReasoning = new Map<string, string>();
 
   for (const sourceModel of sourceModels) {
-    const translated = provider.translateModel(sourceModel, {
-      existing(id) {
-        return existing.get(`${id}.toml`)?.toml;
-      },
-      authored(id) {
-        return existing.get(`${id}.toml`)?.authored;
-      },
-    });
+    let translated: ReturnType<typeof provider.translateModel>;
+    try {
+      translated = provider.translateModel(sourceModel, {
+        existing(id) {
+          return existing.get(`${id}.toml`)?.toml;
+        },
+        authored(id) {
+          return existing.get(`${id}.toml`)?.authored;
+        },
+      });
+    } catch (error) {
+      if (!(error instanceof MissingReasoningOptionsError)) throw error;
+      missingReasoning.set(error.modelId, error.message);
+      console.warn(error.message);
+      continue;
+    }
     if (translated === undefined) {
       const skippedID = provider.sourceID?.(sourceModel);
       if (skippedID !== undefined) skippedRemote.push(skippedID);
@@ -443,6 +453,10 @@ export async function syncProvider<SourceModel>(
   const missingLocal: string[] = [];
   for (const relativePath of new Set([...existing.keys(), ...brokenSymlinks])) {
     if (desired.has(relativePath)) continue;
+    if (missingReasoning.has(relativePath.slice(0, -5))) {
+      unchanged++;
+      continue;
+    }
     if (provider.deleteMissing === false) {
       missingLocal.push(relativePath);
       console.log(`Retaining model missing from source: ${relativePath}`);
@@ -465,22 +479,26 @@ export async function syncProvider<SourceModel>(
   }
 
   const notices = [
+    ...missingReasoning.values(),
     ...provider.skippedNotice?.(skippedRemote) ?? [],
     ...provider.missingNotice?.(missingLocal) ?? [],
   ];
 
+  const issueModels = [
+    ...(provider.skipCreates === true ? skippedRemote : []),
+    ...missingReasoning.keys(),
+  ];
   if (
-    provider.skipCreates === true
-    && provider.trackMissingModels !== false
-    && skippedRemote.length > 0
+    provider.trackMissingModels !== false
+    && issueModels.length > 0
     && options.openIssues === true
   ) {
     try {
       notices.push(
         ...await openMissingModelIssues(
           { id: provider.id, name: provider.name, modelsDir: provider.modelsDir },
-          skippedRemote,
-          { dryRun: options.dryRun },
+          issueModels,
+          { dryRun: options.dryRun, reasons: Object.fromEntries(missingReasoning) },
         ),
       );
     } catch (error) {
