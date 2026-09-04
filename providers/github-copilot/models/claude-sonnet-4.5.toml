@@ -1,0 +1,13 @@
+# Pricing: https://docs.github.com/en/copilot/reference/copilot-billing/models-and-pricing
+# Pricing YAML: https://raw.githubusercontent.com/github/docs/main/data/tables/copilot/models-and-pricing.yml
+# Supported models: https://docs.github.com/en/copilot/reference/ai-models/supported-models
+# Lab model card: https://www.anthropic.com/news/claude-sonnet-4-5
+# Reasoning: Anthropic extended thinking budget (same surface as providers/anthropic + github-copilot claude-haiku-4.5)
+base_model = "anthropic/claude-sonnet-4-5"
+reasoning_options = [{ type = "budget_tokens", min = 1_024, max = 32_000 }]
+
+[cost]
+input = 3
+output = 15
+cache_read = 0.3
+cache_write = 3.75
