@@ -1,10 +1,10 @@
 name = "Omen Alpha"
-description = "Stealth multimodal reasoning model for coding, agentic tasks, and tool use"
+description = "oH man anothEr aLPha ModEl"
 release_date = "2026-09-04"
 last_updated = "2026-09-04"
 attachment = true
 reasoning = true
-reasoning_options = [{ type = "effort", values = ["low", "high", "max"] }]
+reasoning_options = [{ type = "effort", values = ["low", "high"] }]
 temperature = true
 tool_call = true
 structured_output = true
@@ -19,9 +19,9 @@ output = 0.66
 cache_read = 0.04
 
 [limit]
-context = 1_000_000
-output = 131_072
+context = 500_000
+output = 128_000
 
 [modalities]
-input = ["text", "image", "video", "pdf"]
+input = ["text", "image"]
 output = ["text"]
