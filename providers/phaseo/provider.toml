@@ -1,0 +1,5 @@
+name = "Phaseo"
+env = ["PHASEO_API_KEY"]
+npm = "@ai-sdk/openai-compatible"
+api = "https://api.phaseo.app/v1"
+doc = "https://phaseo.app/docs/v1"
