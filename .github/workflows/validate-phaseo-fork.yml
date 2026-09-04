@@ -1,0 +1,21 @@
+name: Validate Phaseo Provider Fork
+
+on:
+  push:
+    branches: [ci/phaseo-provider-validation]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      PHASEO_MODELS_URL: https://api-staging.phaseo.app/v1/models
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - run: bun test packages/core/test/phaseo.test.ts
+      - run: bun models:sync phaseo --no-issues
+      - run: bun validate
