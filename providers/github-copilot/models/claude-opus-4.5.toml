@@ -1,0 +1,22 @@
+# Pricing: https://docs.github.com/en/copilot/reference/copilot-billing/models-and-pricing
+# Availability: https://docs.github.com/en/copilot/reference/ai-models/supported-models
+# Lab base: https://platform.claude.com/docs/en/models/overview (Claude Opus 4.5 legacy)
+# Reasoning: Anthropic Opus 4.5 extended thinking — effort low|medium|high + budget_tokens
+#   (matches providers/anthropic/models/claude-opus-4-5.toml; Copilot peers haiku-4.5 / sonnet-4.6)
+# Limits: lab 200k context / 64k output; Copilot input headroom matches other 200k Claude hosts
+base_model = "anthropic/claude-opus-4-5"
+reasoning_options = [
+  { type = "effort", values = ["low", "medium", "high"] },
+  { type = "budget_tokens", min = 1_024, max = 32_000 },
+]
+
+[cost]
+input = 5
+output = 25
+cache_read = 0.5
+cache_write = 6.25
+
+[limit]
+context = 200_000
+input = 168_000
+output = 64_000
